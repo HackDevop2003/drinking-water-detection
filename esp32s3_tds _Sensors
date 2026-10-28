@@ -1,0 +1,141 @@
+#include <Arduino.h>
+
+// =====================================================
+// XIAO ESP32-S3 / ESP32 + ANALOG TDS SENSOR V1.0
+// =====================================================
+
+// Change to the ADC pin you use
+#define TDS_PIN A2
+
+// ADC settings
+#define VREF 3.3
+#define ADC_MAX 4095.0
+
+// Number of samples for median filter
+#define SAMPLE_COUNT 15
+
+// Fixed temperature assumption
+#define WATER_TEMPERATURE 25.0
+
+// =====================================================
+// MEDIAN FILTER
+// =====================================================
+
+int getMedian(int data[], int size)
+{
+  int sortedData[SAMPLE_COUNT];
+
+  for (int i = 0; i < size; i++)
+  {
+    sortedData[i] = data[i];
+  }
+
+  for (int i = 0; i < size - 1; i++)
+  {
+    for (int j = 0; j < size - i - 1; j++)
+    {
+      if (sortedData[j] > sortedData[j + 1])
+      {
+        int temp = sortedData[j];
+        sortedData[j] = sortedData[j + 1];
+        sortedData[j + 1] = temp;
+      }
+    }
+  }
+
+  return sortedData[size / 2];
+}
+
+// =====================================================
+// SETUP
+// =====================================================
+
+void setup()
+{
+  Serial.begin(115200);
+
+  pinMode(TDS_PIN, INPUT);
+
+  analogReadResolution(12);
+  analogSetPinAttenuation(TDS_PIN, ADC_11db);
+
+  delay(2000);
+
+  Serial.println();
+  Serial.println("==============================================");
+  Serial.println("      ESP32 + TDS SENSOR WATER MONITOR");
+  Serial.println("==============================================");
+
+  Serial.println();
+  Serial.println("CONNECTION:");
+  Serial.println("TDS +  -> XIAO/ESP32 3.3V");
+  Serial.println("TDS -  -> XIAO/ESP32 GND");
+  Serial.println("TDS A  -> XIAO/ESP32 A2 / GPIO3");
+
+  Serial.println();
+  Serial.println("Temperature : 25 C (ASSUMED)");
+  Serial.println("Reference   : OFF");
+  Serial.println("Resistor    : NONE");
+  Serial.println("ADC         : 12-bit");
+
+  Serial.println();
+  Serial.println("Put sensor in water and wait...");
+  Serial.println();
+
+  delay(3000);
+
+  Serial.println("Starting TDS measurement...");
+  Serial.println();
+}
+
+// =====================================================
+// LOOP
+// =====================================================
+
+void loop()
+{
+  int samples[SAMPLE_COUNT];
+
+  for (int i = 0; i < SAMPLE_COUNT; i++)
+  {
+    samples[i] = analogRead(TDS_PIN);
+    delay(20);
+  }
+
+  int adcValue = getMedian(samples, SAMPLE_COUNT);
+
+  float voltage = ((float)adcValue * VREF) / ADC_MAX;
+
+  // Standard TDS approximation for analog sensor
+  float tds =
+      (133.42 * voltage * voltage * voltage
+       - 255.86 * voltage * voltage
+       + 857.39 * voltage)
+      * 0.5;
+
+  if (tds < 0)
+  {
+    tds = 0;
+  }
+
+  Serial.println("----------------------------------------------");
+
+  Serial.print("ADC Value       : ");
+  Serial.println(adcValue);
+
+  Serial.print("Analog Voltage  : ");
+  Serial.print(voltage, 4);
+  Serial.println(" V");
+
+  Serial.print("Temperature     : ");
+  Serial.print(WATER_TEMPERATURE, 1);
+  Serial.println(" C (ASSUMED)");
+
+  Serial.print("TDS             : ");
+  Serial.print(tds, 1);
+  Serial.println(" ppm");
+
+  Serial.println("----------------------------------------------");
+
+  delay(1000);
+}
