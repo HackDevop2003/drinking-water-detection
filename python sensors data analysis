@@ -1,0 +1,64 @@
+import csv
+import math
+from pathlib import Path
+
+def read_samples(csv_path):
+    values = []
+    with open(csv_path, newline='') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if not row:
+                continue
+            try:
+                val = float(row[0])
+                values.append(val)
+            except ValueError:
+                continue
+    return values
+
+def calculate_mean(values):
+    return sum(values) / len(values) if values else 0.0
+
+def calculate_std(values, mean):
+    if not values:
+        return 0.0
+    variance = sum((x - mean) ** 2 for x in values) / len(values)
+    return math.sqrt(variance)
+
+def classify_tds(tds_value):
+    if tds_value < 50:
+        return "Very low / distilled-like"
+    elif tds_value < 150:
+        return "Low"
+    elif tds_value < 300:
+        return "Normal / moderate"
+    elif tds_value < 500:
+        return "High mineral content"
+    elif tds_value < 1000:
+        return "High"
+    return "Very high / outside normal low-cost sensor range"
+
+def main():
+    csv_file = Path("sensor_data.csv")
+    if not csv_file.exists():
+        print("No sensor_data.csv file found.")
+        print("Create a CSV file with one TDS value per line.")
+        return
+
+    values = read_samples(csv_file)
+    if not values:
+        print("No valid numeric data found.")
+        return
+
+    mean_value = calculate_mean(values)
+    std_dev = calculate_std(values, mean_value)
+
+    print("Water Quality Analysis")
+    print("-" * 40)
+    print(f"Samples: {len(values)}")
+    print(f"Mean TDS: {mean_value:.2f} ppm")
+    print(f"Std Dev: {std_dev:.2f} ppm")
+    print(f"Classification: {classify_tds(mean_value)}")
+
+if __name__ == "__main__":
+    main()
