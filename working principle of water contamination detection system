@@ -1,0 +1,37 @@
+# Working Principle of Water Contamination Detection System
+
+The proposed water contamination detection system operates on the principle of measuring changes in water properties caused by dissolved substances, suspended particles, and contamination. The system uses a low-cost electronic sensing unit to observe the water condition and convert the signal into a measurable value.
+
+The process starts with the water sample being placed near the sensing probe. The sensor generates an analog electrical signal based on the conductivity or contamination level of the water. In a TDS-based system, the probe measures how well the water carries current. Higher dissolved salts or contaminants usually result in higher conductivity and therefore a different output signal.
+
+This analog signal is sent to the microcontroller’s ADC input. The ADC converts the analog voltage into a digital value that can be processed by the controller. The ESP32 or ESP32-S3 reads this value using its internal analog input. Since raw ADC values can fluctuate because of electrical noise, a median filter is applied to a group of samples before calculation.
+
+After filtering, the system converts the ADC value to voltage using the formula:
+
+V = (ADC × 3.3) / 4095
+
+This voltage is then used to estimate the TDS level. A common approximation used for many low-cost analog TDS sensors is:
+
+TDS = (133.42 × V^3 - 255.86 × V^2 + 857.39 × V) × 0.5
+
+The value is expressed in ppm (parts per million), which is a standard measure for total dissolved solids in water.
+
+The final reading is then compared with reference ranges to determine whether the water is:
+- very low TDS
+- low TDS
+- moderate TDS
+- high TDS
+- beyond normal sensor range
+
+The system is useful for identifying the relative contamination or dissolved-salt content in water. In practical applications, this can help monitor drinking water quality, check filter effectiveness, and detect changes in water condition over time.
+
+For more advanced systems, the data can also be fed into a machine learning model. Features such as TDS, turbidity, pH, and conductivity can be analyzed to classify water quality as poor, fair, good, or excellent. This enables the system to move beyond simple threshold detection and provide smarter interpretation.
+
+The working principle therefore combines:
+- sensor measurement
+- analog-to-digital conversion
+- filtering and signal conditioning
+- mathematical estimation
+- classification and decision making
+
+This makes the system cost-effective, portable, and suitable for real-time water quality analysis in both educational and field applications.
