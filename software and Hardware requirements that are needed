@@ -1,0 +1,40 @@
+# Software and Hardware Requirements
+
+## Software Requirements
+1. Programming language: Embedded C / Arduino C
+2. Programming language: Python 3.x
+3. Microcontroller IDE: Arduino IDE or PlatformIO
+4. Data analysis libraries: NumPy, Pandas, Scikit-learn
+5. Visualization library: Matplotlib
+6. Optional dashboard: Flask, Firebase, or ThingSpeak
+
+## Hardware Requirements
+1. ESP32 or ESP32-S3 microcontroller
+2. TDS sensor / analog water quality probe
+3. Jumper wires
+4. Breadboard
+5. 3.3V supply
+6. Serial monitor or USB cable
+7. Optional LCD / display module
+
+## System Requirements
+- Operating System: Windows, Linux, or macOS
+- RAM: 4 GB or higher recommended
+- Storage: at least 1 GB free space
+- Internet connection for research and online resources (optional)
+
+## Functional Requirements
+- Measure water signal through analog sensor
+- Convert raw ADC value into voltage
+- Estimate water quality/TDS value
+- Display result in serial monitor
+- Process data with Python for analysis
+- Classify water quality if machine learning is enabled
+
+## Non-Functional Requirements
+- Low cost
+- Portable
+- User-friendly
+- Real-time monitoring capability
+- Reliable sensor readings
+- Suitable for prototype and educational demonstration
